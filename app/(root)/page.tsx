@@ -1,14 +1,14 @@
+import QuestionCard from "@/components/cards/QuestionCard";
 import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
 import Link from "next/link";
 
-const questions = [
+const questions: Question[] = [
   {
     _id: "1",
     title: "How to learn react ",
-    description: "I want to learn react but i dont know where to start",
     tags: [
       {
         _id: "1",
@@ -19,16 +19,20 @@ const questions = [
         name: "Javascript",
       },
     ],
-    author: { name: "John Doe", _id: "1" },
+    author: {
+      name: "John Doe",
+      _id: "1",
+      image:
+        "https://i.pinimg.com/236x/d1/4a/b5/d14ab57b9ddcfa1240ffabd13f8b609c.jpg",
+    },
     upVotes: 10,
-    downVotes: 2,
+    answers: 2,
     views: 100,
-    createAt: new Date(),
+    createAt: new Date("2023-09-01"),
   },
   {
     _id: "2",
     title: "How to learn Javascript ",
-    description: "I want to learn Javascript but i dont know where to start",
     tags: [
       {
         _id: "1",
@@ -39,11 +43,16 @@ const questions = [
         name: "Javascript",
       },
     ],
-    author: { name: "abdallah", _id: "2" },
+    author: {
+      name: "abdallah",
+      _id: "2",
+      image:
+        "https://i.pinimg.com/236x/d1/4a/b5/d14ab57b9ddcfa1240ffabd13f8b609c.jpg",
+    },
     upVotes: 10,
-    downVotes: 2,
+    answers: 2,
     views: 100,
-    createAt: new Date(),
+    createAt: new Date("2021-09-01"),
   },
 ];
 
@@ -77,8 +86,8 @@ const Home = async ({ searchParams }: SearchParams) => {
       </section>
       <HomeFilter />
       <div className="flex flex-col w-full gap-6 mt-10">
-        {filteredQuestions.map((question) => (
-          <h1 key={question._id}>{question.title}</h1>
+        {filteredQuestions.map((question: Question) => (
+          <QuestionCard key={question._id} question={question} />
         ))}
       </div>
     </>

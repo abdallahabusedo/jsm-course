@@ -13,15 +13,15 @@ const TagCard = ({
 }: {
   _id: string;
   name: string;
-  questions: number;
+  questions?: number;
   showCount?: boolean;
   compact?: boolean;
 }) => {
   const iconClassName = getDevIconClassName(name);
   return (
     <Link href={ROUTES.TAGS(_id)} className="flex justify-between gap-2">
-      <Badge className="subtle-medium background-light800_dark300 text-light400_light500 rounded-md px-4 py-2 uppercase">
-        <div className="flex-center space-x-2">
+      <Badge className="px-4 py-2 uppercase rounded-md subtle-medium background-light800_dark300 text-light400_light500">
+        <div className="space-x-2 flex-center">
           <i className={`${iconClassName}`}></i>
           <span>{name}</span>
         </div>
