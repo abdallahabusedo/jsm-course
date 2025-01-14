@@ -12,7 +12,7 @@ const NavLink = ({ isMobileNav = false }: { isMobileNav?: boolean }) => {
   const userId = "12345";
   return (
     <>
-      {SIDEBAR_LINKS.map((link, index) => {
+      {SIDEBAR_LINKS.map((link) => {
         const isActive =
           (pathname.includes(link.route) && link.route.length > 1) ||
           pathname === link.route;
