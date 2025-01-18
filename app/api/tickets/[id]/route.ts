@@ -1,6 +1,7 @@
 import tickets from "@/app/database/database";
 import { NextResponse } from "next/server";
 
+// GET /api/tickets
 export async function GET(
   _: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -11,6 +12,7 @@ export async function GET(
   return NextResponse.json(ticket);
 }
 
+// PUT /api/tickets/[id]
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -28,6 +30,7 @@ export async function PUT(
   return NextResponse.json(ticket);
 }
 
+// DELETE /api/tickets/[id]
 export async function DELETE(
   _: Request,
   { params }: { params: Promise<{ id: string }> }
