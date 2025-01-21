@@ -7,7 +7,7 @@ import Metric from "../Metric";
 import { Question, Tag } from "@/types/global";
 
 const QuestionCard = ({
-  question: { title, tags, author, upVotes, answers, views, createAt, _id },
+  question: { title, tags, author, upVotes, answers, views, createdAt, _id },
 }: {
   question: Question;
 }) => {
@@ -16,7 +16,7 @@ const QuestionCard = ({
       <div className="flex flex-col-reverse items-start justify-between gap-5 sm:flex-row">
         <div>
           <span className="flex subtle-regular text-dark400_light700 line-clamp-1 sm:hidden">
-            {getTimeStamp(createAt)}
+            {getTimeStamp(createdAt)}
           </span>
           <Link href={ROUTES.QUESTION(_id)}>
             <h3 className="flex-1 sm:h3-semibold base-semibold text-dark200_light900 line-clamp-1">
@@ -42,7 +42,7 @@ const QuestionCard = ({
           imgUrl={author.image}
           alt={author.name}
           value={author.name}
-          title={`. asked ${getTimeStamp(createAt)}`}
+          title={`. asked ${getTimeStamp(createdAt)}`}
           href={ROUTES.PROFILE(author._id)}
           textStyles="text-dark400_light700 body-medium"
           isAuthor

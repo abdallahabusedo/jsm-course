@@ -22,7 +22,7 @@ const questions = [
       image:
         "https://static.vecteezy.com/system/resources/previews/002/002/403/non_2x/man-with-beard-avatar-character-isolated-icon-free-vector.jpg",
     },
-    upvotes: 10,
+    upVotes: 10,
     answers: 5,
     views: 100,
     createdAt: new Date(),
@@ -41,7 +41,7 @@ const questions = [
       image:
         "https://static.vecteezy.com/system/resources/previews/002/002/403/non_2x/man-with-beard-avatar-character-isolated-icon-free-vector.jpg",
     },
-    upvotes: 10,
+    upVotes: 10,
     answers: 5,
     views: 100,
     createdAt: new Date("2021-09-01"),

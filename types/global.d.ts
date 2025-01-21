@@ -19,7 +19,7 @@ interface Question {
   upVotes: number;
   answers: number;
   views: number;
-  createAt: Date;
+  createdAt: Date;
 }
 
 type ActionResponse<T = null> = {
