@@ -1,75 +1,79 @@
+import Link from "next/link";
+
+import { auth } from "@/auth";
 import QuestionCard from "@/components/cards/QuestionCard";
 import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
-import { Question } from "@/types/global";
-import Link from "next/link";
 
-const questions: Question[] = [
+const questions = [
   {
     _id: "1",
-    title: "How to learn react ",
+    title: "How to learn React?",
+    description: "I want to learn React, can anyone help me?",
     tags: [
-      {
-        _id: "1",
-        name: "React",
-      },
-      {
-        _id: "2",
-        name: "Javascript",
-      },
+      { _id: "1", name: "React" },
+      { _id: "2", name: "JavaScript" },
     ],
     author: {
-      name: "John Doe",
       _id: "1",
+      name: "John Doe",
       image:
-        "https://i.pinimg.com/236x/d1/4a/b5/d14ab57b9ddcfa1240ffabd13f8b609c.jpg",
+        "https://static.vecteezy.com/system/resources/previews/002/002/403/non_2x/man-with-beard-avatar-character-isolated-icon-free-vector.jpg",
     },
-    upVotes: 10,
-    answers: 2,
+    upvotes: 10,
+    answers: 5,
     views: 100,
-    createAt: new Date("2023-09-01"),
+    createdAt: new Date(),
   },
   {
     _id: "2",
-    title: "How to learn Javascript ",
+    title: "How to learn JavaScript?",
+    description: "I want to learn JavaScript, can anyone help me?",
     tags: [
-      {
-        _id: "1",
-        name: "React",
-      },
-      {
-        _id: "2",
-        name: "Javascript",
-      },
+      { _id: "1", name: "JavaScript" },
+      { _id: "2", name: "JavaScript" },
     ],
     author: {
-      name: "abdallah",
-      _id: "2",
+      _id: "1",
+      name: "John Doe",
       image:
-        "https://i.pinimg.com/236x/d1/4a/b5/d14ab57b9ddcfa1240ffabd13f8b609c.jpg",
+        "https://static.vecteezy.com/system/resources/previews/002/002/403/non_2x/man-with-beard-avatar-character-isolated-icon-free-vector.jpg",
     },
-    upVotes: 10,
-    answers: 2,
+    upvotes: 10,
+    answers: 5,
     views: 100,
-    createAt: new Date("2021-09-01"),
+    createdAt: new Date("2021-09-01"),
   },
 ];
 
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
 }
+
 const Home = async ({ searchParams }: SearchParams) => {
+  const session = await auth();
+
+  console.log("Session: ", session);
+
   const { query = "", filter = "" } = await searchParams;
-  const filteredQuestions = questions.filter((question) =>
-    question.title.toLowerCase().includes(query?.toLowerCase())
-  );
+
+  const filteredQuestions = questions.filter((question) => {
+    const matchesQuery = question.title
+      .toLowerCase()
+      .includes(query.toLowerCase());
+    const matchesFilter = filter
+      ? question.tags[0].name.toLowerCase() === filter.toLowerCase()
+      : true;
+    return matchesQuery && matchesFilter;
+  });
 
   return (
     <>
-      <section className="flex flex-col-reverse justify-between w-full gap-4 sm:flex-row sm:items-center ">
-        <h1 className="h1-bold text-dark100_light900">All Question</h1>
+      <section className="flex flex-col-reverse justify-between w-full gap-4 sm:flex-row sm:items-center">
+        <h1 className="h1-bold text-dark100_light900">All Questions</h1>
+
         <Button
           className="primary-gradient min-h-[46px] px-4 py-3 !text-light-900"
           asChild
@@ -79,15 +83,15 @@ const Home = async ({ searchParams }: SearchParams) => {
       </section>
       <section className="mt-11">
         <LocalSearch
-          imgSrc="/icons/search.svg"
-          placeholder="Search questions"
-          otherClasses="flex-1"
           route="/"
+          imgSrc="/icons/search.svg"
+          placeholder="Search questions..."
+          otherClasses="flex-1"
         />
       </section>
       <HomeFilter />
       <div className="flex flex-col w-full gap-6 mt-10">
-        {filteredQuestions.map((question: Question) => (
+        {filteredQuestions.map((question) => (
           <QuestionCard key={question._id} question={question} />
         ))}
       </div>
