@@ -4,6 +4,7 @@ import Link from "next/link";
 import React from "react";
 import TagCard from "./TagCard";
 import Metric from "../Metric";
+import { Question, Tag } from "@/types/global";
 
 const QuestionCard = ({
   question: { title, tags, author, upVotes, answers, views, createAt, _id },
@@ -26,7 +27,13 @@ const QuestionCard = ({
       </div>
       <div className="mt-3.5 flex w-full flex-wrap gap-2">
         {tags.map((tag: Tag) => (
-          <TagCard _id={tag._id} key={tag._id} name={tag.name} compact />
+          <TagCard
+            isButton
+            _id={tag._id}
+            key={tag._id}
+            name={tag.name}
+            compact
+          />
         ))}
       </div>
 
