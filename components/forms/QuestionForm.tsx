@@ -1,11 +1,19 @@
 "use client";
-import { AskQuestionSchema } from "@/lib/validations";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MDXEditorMethods } from "@mdxeditor/editor";
+import { ReloadIcon } from "@radix-ui/react-icons";
 import dynamic from "next/dynamic";
-import React, { useRef } from "react";
+import { useRouter } from "next/navigation";
+import React, { useRef, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+import ROUTES from "@/constants/routes";
+import { toast } from "@/hooks/use-toast";
+import { createQuestion } from "@/lib/actions/question.action";
+import { AskQuestionSchema } from "@/lib/validations";
+
 import TagCard from "../cards/TagCard";
 import { Button } from "../ui/button";
 import {
@@ -18,37 +26,46 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+
 const Editor = dynamic(() => import("@/components/editor"), {
-  // Make sure we turn SSR off
   ssr: false,
 });
 
 const QuestionForm = () => {
+  const router = useRouter();
   const editorRef = useRef<MDXEditorMethods>(null);
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<z.infer<typeof AskQuestionSchema>>({
     resolver: zodResolver(AskQuestionSchema),
-    defaultValues: { title: "", content: "", tags: [] },
+    defaultValues: {
+      title: "",
+      content: "",
+      tags: [],
+    },
   });
 
   const handleInputKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
     field: { value: string[] }
   ) => {
+    console.log(field, e);
     if (e.key === "Enter") {
       e.preventDefault();
       const tagInput = e.currentTarget.value.trim();
+
       if (tagInput && tagInput.length < 15 && !field.value.includes(tagInput)) {
         form.setValue("tags", [...field.value, tagInput]);
         e.currentTarget.value = "";
         form.clearErrors("tags");
       } else if (tagInput.length > 15) {
         form.setError("tags", {
-          type: "maxLength",
-          message: "Tag cannot exceed 15 characters",
+          type: "manual",
+          message: "Tag should be less than 15 characters",
         });
       } else if (field.value.includes(tagInput)) {
         form.setError("tags", {
-          type: "unique",
+          type: "manual",
           message: "Tag already exists",
         });
       }
@@ -56,44 +73,64 @@ const QuestionForm = () => {
   };
 
   const handleTagRemove = (tag: string, field: { value: string[] }) => {
-    const newTags = field.value.filter((tagValue) => tagValue !== tag);
+    const newTags = field.value.filter((t) => t !== tag);
 
     form.setValue("tags", newTags);
 
     if (newTags.length === 0) {
       form.setError("tags", {
         type: "manual",
-        message: "At least one tag is required",
+        message: "Tags are required",
       });
     }
   };
-  const handleCreateQuestion = (data: z.infer<typeof AskQuestionSchema>) => {
-    console.log(data);
+
+  const handleCreateQuestion = async (
+    data: z.infer<typeof AskQuestionSchema>
+  ) => {
+    startTransition(async () => {
+      const result = await createQuestion(data);
+
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Question created successfully",
+        });
+
+        if (result.data) router.push(ROUTES.QUESTION(result.data._id));
+      } else {
+        toast({
+          title: `Error ${result.status}`,
+          description: result.error?.message || "Something went wrong",
+          variant: "destructive",
+        });
+      }
+    });
   };
+
   return (
     <Form {...form}>
       <form
-        className="flex flex-col w-full gap-10"
+        className="flex w-full flex-col gap-10"
         onSubmit={form.handleSubmit(handleCreateQuestion)}
       >
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
-            <FormItem className="flex flex-col w-full">
-              <FormLabel className="paragraph-semibold text-dark400_light700">
-                Question Title
+            <FormItem className="flex w-full flex-col">
+              <FormLabel className="paragraph-semibold text-dark400_light800">
+                Question Title <span className="text-primary-500">*</span>
               </FormLabel>
               <FormControl>
                 <Input
-                  required
-                  type="text"
-                  {...field}
                   className="paragraph-regular background-light700_dark300 light-border-2 text-dark300_light700 no-focus min-h-[56px] border"
+                  {...field}
                 />
               </FormControl>
-              <FormDescription className="body-regular text-light-500 mt-2.5">
-                A short, descriptive title that summarizes your question.
+              <FormDescription className="body-regular mt-2.5 text-light-500">
+                Be specific and imagine you&apos;re asking a question to another
+                person.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -103,7 +140,7 @@ const QuestionForm = () => {
           control={form.control}
           name="content"
           render={({ field }) => (
-            <FormItem className="flex flex-col w-full">
+            <FormItem className="flex w-full flex-col">
               <FormLabel className="paragraph-semibold text-dark400_light800">
                 Detailed explanation of your problem{" "}
                 <span className="text-primary-500">*</span>
@@ -127,28 +164,26 @@ const QuestionForm = () => {
           control={form.control}
           name="tags"
           render={({ field }) => (
-            <FormItem className="flex flex-col w-full gap-3">
-              <FormLabel className="paragraph-semibold text-dark400_light700">
-                Tags
+            <FormItem className="flex w-full flex-col gap-3">
+              <FormLabel className="paragraph-semibold text-dark400_light800">
+                Tags <span className="text-primary-500">*</span>
               </FormLabel>
               <FormControl>
                 <div>
                   <Input
-                    required
-                    type="text"
-                    onKeyDown={(e) => handleInputKeyDown(e, field)}
-                    placeholder="Add tags..."
                     className="paragraph-regular background-light700_dark300 light-border-2 text-dark300_light700 no-focus min-h-[56px] border"
+                    placeholder="Add tags..."
+                    onKeyDown={(e) => handleInputKeyDown(e, field)}
                   />
-                  {field?.value.length > 0 && (
+                  {field.value.length > 0 && (
                     <div className="flex-start mt-2.5 flex-wrap gap-2.5">
-                      {field.value.map((tag) => (
+                      {field?.value?.map((tag: string) => (
                         <TagCard
                           key={tag}
                           _id={tag}
                           name={tag}
-                          remove
                           compact
+                          remove
                           isButton
                           handleRemove={() => handleTagRemove(tag, field)}
                         />
@@ -157,21 +192,29 @@ const QuestionForm = () => {
                   )}
                 </div>
               </FormControl>
-              <FormDescription className="body-regular text-light-500 mt-2.5">
-                Add up to 3 tags to describe what your question is about. need
-                to press enter to add a tag.
+              <FormDescription className="body-regular mt-2.5 text-light-500">
+                Add up to 3 tags to describe what your question is about. You
+                need to press enter to add a tag.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="flex justify-end mt-16">
+        <div className="mt-16 flex justify-end">
           <Button
             type="submit"
-            className="primary-gradient !text-light-900 w-fit"
+            disabled={isPending}
+            className="primary-gradient w-fit !text-light-900"
           >
-            Add a question
+            {isPending ? (
+              <>
+                <ReloadIcon className="mr-2 size-4 animate-spin" />
+                <span>Submitting</span>
+              </>
+            ) : (
+              <>Ask A Question</>
+            )}
           </Button>
         </div>
       </form>
