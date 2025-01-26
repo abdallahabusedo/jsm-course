@@ -15,8 +15,3 @@ interface AuthCredentials {
   password: string;
   username: string;
 }
-
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
