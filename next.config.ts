@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
         hostname: "i.pinimg.com",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "static.vecteezy.com",
+        port: "",
+      },
     ],
   },
 };

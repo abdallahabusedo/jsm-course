@@ -1,13 +1,56 @@
+import bcrypt from "bcryptjs";
 import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 
-import { api } from "./lib/api";
-import { ActionResponse } from "./types/global";
 import { IAccountDocument } from "./database/account.model";
+import { IUserDocument } from "./database/user.model";
+import { api } from "./lib/api";
+import { LoginSchema } from "./lib/validations";
+import { ActionResponse } from "./types/global";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [GitHub, Google],
+  providers: [
+    GitHub,
+    Google,
+    Credentials({
+      async authorize(credentials) {
+        const validatedFields = LoginSchema.safeParse(credentials);
+
+        if (validatedFields.success) {
+          const { email, password } = validatedFields.data;
+
+          const { data: existingAccount } = (await api.accounts.getByProvider(
+            email
+          )) as ActionResponse<IAccountDocument>;
+
+          if (!existingAccount) return null;
+
+          const { data: existingUser } = (await api.users.getById(
+            existingAccount.userId.toString()
+          )) as ActionResponse<IUserDocument>;
+
+          if (!existingUser) return null;
+
+          const isValidPassword = await bcrypt.compare(
+            password,
+            existingAccount.password!
+          );
+
+          if (isValidPassword) {
+            return {
+              id: existingUser.id,
+              name: existingUser.name,
+              email: existingUser.email,
+              image: existingUser.image,
+            };
+          }
+        }
+        return null;
+      },
+    }),
+  ],
   callbacks: {
     async session({ session, token }) {
       session.user.id = token.sub as string;
@@ -31,15 +74,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       return token;
     },
-    async signIn({ user, profile, account }) {
-      console.log("User: ", user);
-      console.log("Profile: ", profile);
-      console.log("Account: ", account);
 
+    async signIn({ user, profile, account }) {
       if (account?.type === "credentials") return true;
       if (!account || !user) return false;
-
-      console.log("did not return");
 
       const userInfo = {
         name: user.name!,
@@ -51,15 +89,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             : (user.name?.toLowerCase() as string),
       };
 
-      console.log("UserInfo: ", userInfo);
-
       const { success } = (await api.auth.oAuthSignIn({
         user: userInfo,
         provider: account.provider as "github" | "google",
         providerAccountId: account.providerAccountId,
       })) as ActionResponse;
-
-      console.log("Success: ", success);
 
       if (!success) return false;
 

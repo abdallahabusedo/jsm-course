@@ -1,7 +1,7 @@
+"use client";
 import ROUTES from "@/constants/routes";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 import TagCard from "../cards/TagCard";
 
 const hotQuestion = [

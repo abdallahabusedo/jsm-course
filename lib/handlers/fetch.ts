@@ -41,7 +41,7 @@ export async function fetchHandler<T>(
   try {
     const response = await fetch(url, config); // Make the fetch request
     clearTimeout(id); // Clear the timeout
-    if (response.ok)
+    if (!response.ok)
       throw new RequestError(response.status, `HTTP Error: ${response.status}`); // Throw an error if response is not OK
 
     return await response.json(); // Parse and return the response as JSON
