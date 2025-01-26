@@ -10,7 +10,11 @@ import ROUTES from "@/constants/routes";
 import Image from "next/image";
 import Link from "next/link";
 import NavLink from "./NavLink";
-const MobileNavigation = () => {
+import { auth, signOut } from "@/auth";
+import { LogOut } from "lucide-react";
+const MobileNavigation = async () => {
+  const session = await auth();
+  const userId = session?.user?.id;
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -47,20 +51,42 @@ const MobileNavigation = () => {
           </SheetClose>
 
           <div className="flex flex-col gap-3">
-            <SheetClose asChild>
-              <Link href={ROUTES.LOGIN}>
-                <Button className="small-medium btn-secondary min-h-[41px] w-full rounded-lg px-4 py-3 shadow-none">
-                  <span className="primary-text-gradient">Login</span>
-                </Button>
-              </Link>
-            </SheetClose>
-            <SheetClose asChild>
-              <Link href={ROUTES.REGISTER}>
-                <Button className="small-medium light-border-2 btn-tertiary min-h-[41px] text-dark400_light900 border w-full rounded-lg px-4 py-3 shadow-none">
-                  <span>Register</span>
-                </Button>
-              </Link>
-            </SheetClose>
+            {userId ? (
+              <SheetClose asChild>
+                <form
+                  action={async () => {
+                    "use server";
+                    await signOut();
+                  }}
+                >
+                  <Button
+                    type="submit"
+                    className="base-medium w-fit !bg-transparent px-4 py-3"
+                  >
+                    <LogOut className="size-5 text-black dark:text-white" />
+
+                    <span className="text-dark300_light900 ">Logout</span>
+                  </Button>
+                </form>
+              </SheetClose>
+            ) : (
+              <>
+                <SheetClose asChild>
+                  <Link href={ROUTES.LOGIN}>
+                    <Button className="small-medium btn-secondary min-h-[41px] w-full rounded-lg px-4 py-3 shadow-none">
+                      <span className="primary-text-gradient">Login</span>
+                    </Button>
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link href={ROUTES.REGISTER}>
+                    <Button className="small-medium light-border-2 btn-tertiary min-h-[41px] text-dark400_light900 border w-full rounded-lg px-4 py-3 shadow-none">
+                      <span>Register</span>
+                    </Button>
+                  </Link>
+                </SheetClose>
+              </>
+            )}
           </div>
         </div>
       </SheetContent>

@@ -7,9 +7,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 
-const NavLink = ({ isMobileNav = false }: { isMobileNav?: boolean }) => {
+const NavLink = ({
+  isMobileNav = false,
+  userId,
+}: {
+  isMobileNav?: boolean;
+  userId?: string;
+}) => {
   const pathname = usePathname();
-  const userId = "12345";
   return (
     <>
       {SIDEBAR_LINKS.map((link) => {
@@ -26,8 +31,8 @@ const NavLink = ({ isMobileNav = false }: { isMobileNav?: boolean }) => {
           <Link
             className={cn(
               isActive
-                ? "primary-gradient rounded-lg text-light-900"
-                : "text-dark300_light900",
+                ? " primary-gradient rounded-lg text-light-900 "
+                : " text-dark300_light900 ",
               "flex items-center gap-4 bg-transparent p-4"
             )}
             href={link.route}
