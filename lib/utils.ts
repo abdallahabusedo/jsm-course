@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const getDevIconClassName = (techName: string) => {
-  const normalizedTechName = techName.replace(/[ .]/g, "").toLowerCase();
+  const normalizedTechName = techName?.replace(/[ .]/g, "").toLowerCase();
 
   return techMap[normalizedTechName]
     ? `${techMap[normalizedTechName]} colored`
