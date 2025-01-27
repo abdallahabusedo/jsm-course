@@ -5,7 +5,6 @@ import Link from "next/link";
 import React from "react";
 import TagCard from "./TagCard";
 import Metric from "../Metric";
-import { Question, Tag } from "@/types/global";
 
 const QuestionCard = ({
   question: { title, tags, author, upVotes, answers, views, createdAt, _id },
