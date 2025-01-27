@@ -11,6 +11,7 @@ const Metric = ({
   textStyles,
   isAuthor,
   imgStyles,
+  titleStyles,
 }: {
   imgUrl: string;
   alt: string;
@@ -20,6 +21,7 @@ const Metric = ({
   textStyles: string;
   isAuthor?: boolean;
   imgStyles?: string;
+  titleStyles?: string;
 }) => {
   const metricContent = (
     <>
@@ -33,14 +35,11 @@ const Metric = ({
       <p className={cn(textStyles, "flex items-center gap-1")}>
         {value}
 
-        <span
-          className={cn(
-            isAuthor && "max-sm:hidden",
-            "small-regular line-clamp-1"
-          )}
-        >
-          {title}
-        </span>
+        {title ? (
+          <span className={cn("small-regular line-clamp-1", titleStyles)}>
+            {title}
+          </span>
+        ) : null}
       </p>
     </>
   );

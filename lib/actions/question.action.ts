@@ -207,11 +207,17 @@ export async function getQuestion(
   const { questionId } = validationResult.params!;
 
   try {
-    const question = await Question.findById(questionId).populate({
-      path: "tags",
-      select: "_id name",
-      model: "Tag",
-    });
+    const question = await Question.findById(questionId)
+      .populate({
+        path: "tags",
+        select: "_id name",
+        model: "Tag",
+      })
+      .populate({
+        path: "author",
+        select: "_id name image",
+        model: "User",
+      });
 
     if (!question) {
       throw new Error("Question not found");
