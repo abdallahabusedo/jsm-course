@@ -50,3 +50,7 @@ interface PaginatedSearchParams {
   filter?: string;
   sort?: string;
 }
+
+interface IncrementViewsParams {
+  questionId: string;
+}

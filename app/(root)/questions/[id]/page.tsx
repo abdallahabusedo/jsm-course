@@ -7,7 +7,7 @@ import { getQuestion } from "@/lib/actions/question.action";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { title } from "process";
+import View from "../View";
 
 const QuestionDetails = async ({ params }: RouteParams) => {
   const { id } = await params;
@@ -16,7 +16,8 @@ const QuestionDetails = async ({ params }: RouteParams) => {
   const { author, createdAt, answers, views, tags, content, title } =
     question || {};
   return (
-    <div>
+    <>
+      <View questionId={question._id} />
       <div className="flex-start w-full flex-col">
         <div className="flex w-full flex-col-reverse justify-between">
           <div className="flex items-center justify-start gap-1">
@@ -86,7 +87,7 @@ const QuestionDetails = async ({ params }: RouteParams) => {
       >
         Edit Question
       </Link> */}
-    </div>
+    </>
   );
 };
 
