@@ -283,7 +283,6 @@ export async function getQuestions(
       .sort(sortCriteria)
       .skip(skip)
       .limit(limit);
-    console.log(questions);
 
     const isNext = totalQuestions > skip + questions.length;
 

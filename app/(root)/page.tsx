@@ -6,6 +6,8 @@ import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
 import { getQuestions } from "@/lib/actions/question.action";
+import DataRenderer from "@/components/DataRenderer";
+import { EMPTY_QUESTION } from "@/constants/states";
 
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
@@ -43,25 +45,18 @@ const Home = async ({ searchParams }: SearchParams) => {
         />
       </section>
       <HomeFilter />
-      {success ? (
-        <div className="flex flex-col w-full gap-6 mt-10">
-          {questions && questions.length > 0 ? (
-            questions.map((question: Question) => (
-              <QuestionCard key={question._id} question={question} />
-            ))
-          ) : (
-            <div className="mt-10 flex w-full items-center justify-center">
-              <p className="text-dark400_light700">No Questions Found</p>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="mt-10 flex w-full items-center justify-center">
-          <p className="text-dark400_light700">
-            {error?.message || "Failed to fetch Questions"}
-          </p>
-        </div>
-      )}
+
+      <DataRenderer
+        success={success}
+        error={error}
+        data={questions}
+        empty={EMPTY_QUESTION}
+        render={(questions) =>
+          questions.map((question: Question) => (
+            <QuestionCard key={question._id} question={question} />
+          ))
+        }
+      />
     </>
   );
 };
