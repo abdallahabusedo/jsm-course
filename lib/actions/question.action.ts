@@ -6,7 +6,6 @@ import Question, { IQuestionDocument } from "@/database/question.model";
 import TagQuestion from "@/database/tag-question.model";
 import Tag, { ITagDocument } from "@/database/tag.model";
 
-import action from "../handlers/actions";
 import handleError from "../handlers/error";
 import {
   AskQuestionSchema,
@@ -14,6 +13,7 @@ import {
   GetQuestionsSchema,
   PaginationSearchParamsSchema,
 } from "../validations";
+import action from "../handlers/actions";
 
 export async function createQuestion(
   params: CreateQuestionParams
@@ -100,7 +100,11 @@ export async function editQuestion(
   session.startTransaction();
 
   try {
-    const question = await Question.findById(questionId).populate("tags");
+    const question = await Question.findById(questionId).populate({
+      path: "tags",
+      select: "_id name",
+      model: "Tag",
+    });
 
     if (!question) {
       throw new Error("Question not found");
@@ -116,14 +120,16 @@ export async function editQuestion(
       await question.save({ session });
     }
 
-    const existingTagNames = question.tags.map((tag: ITagDocument) => tag.name);
-
     const tagsToAdd = tags.filter(
-      (tag: string) => !existingTagNames.includes(tag)
+      (tag) =>
+        !question.tags.some((t: ITagDocument) =>
+          t.name.toLowerCase().includes(tag.toLowerCase())
+        )
     );
 
     const tagsToRemove = question.tags.filter(
-      (tag: ITagDocument) => !tags.some((t) => t === tag.name)
+      (tag: ITagDocument) =>
+        !tags.some((t) => t.toLowerCase() === tag.name.toLowerCase())
     );
 
     const newTagDocuments = [];
@@ -142,7 +148,7 @@ export async function editQuestion(
             question: questionId,
           });
 
-          question.tags.push(existingTag);
+          question.tags.push(existingTag._id);
         }
       }
     }
@@ -159,6 +165,13 @@ export async function editQuestion(
       await TagQuestion.deleteMany(
         { tag: { $in: tagIdsToRemove }, question: questionId },
         { session }
+      );
+
+      question.tags = question.tags.filter(
+        (tag: mongoose.Types.ObjectId) =>
+          !tagIdsToRemove.some((id: mongoose.Types.ObjectId) =>
+            id.equals(tag._id)
+          )
       );
     }
 
@@ -194,23 +207,17 @@ export async function getQuestion(
   const { questionId } = validationResult.params!;
 
   try {
-    const question = await Question.findById(questionId).populate(
-      "tags",
-      "_id name"
-    );
+    const question = await Question.findById(questionId).populate({
+      path: "tags",
+      select: "_id name",
+      model: "Tag",
+    });
 
     if (!question) {
       throw new Error("Question not found");
     }
 
-    console.log(question);
-
-    const tags = await Tag.find({ _id: { $in: question.tags } });
-
-    return {
-      success: true,
-      data: { ...JSON.parse(JSON.stringify(question)), tags },
-    };
+    return { success: true, data: JSON.parse(JSON.stringify(question)) };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
@@ -265,18 +272,18 @@ export async function getQuestions(
 
   try {
     const totalQuestions = await Question.countDocuments(filterQuery);
-
     const questions = await Question.find(filterQuery)
-      .populate("tags", "name")
+      .populate({
+        path: "tags",
+        select: "_id name",
+        model: "Tag",
+      })
       .populate("author", "name image")
       .lean()
       .sort(sortCriteria)
       .skip(skip)
       .limit(limit);
-
-    for (const question of questions) {
-      question.tags = await Tag.find({ _id: { $in: question.tags } });
-    }
+    console.log(questions);
 
     const isNext = totalQuestions > skip + questions.length;
 
