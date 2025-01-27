@@ -35,7 +35,7 @@ export const techDescriptionMap: { [key: string]: string } = {
 };
 
 export const getTechDescription = (techName: string) => {
-  const normalizedTechName = techName.replace(/[ .]/g, "").toLowerCase();
+  const normalizedTechName = techName?.replace(/[ .]/g, "").toLowerCase();
   return techDescriptionMap[normalizedTechName]
     ? techDescriptionMap[normalizedTechName]
     : `${techName} is a technology or tool widely used in web development, providing valuable features and capabilities.`;

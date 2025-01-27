@@ -119,10 +119,12 @@ export const getTagQuestions = async (
         {
           path: "author",
           select: "name image",
+          model: "User",
         },
         {
           path: "tags",
-          select: "name",
+          select: "_id name",
+          model: "Tag",
         },
       ])
       .sort({ createdAt: -1 })
