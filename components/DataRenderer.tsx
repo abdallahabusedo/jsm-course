@@ -113,7 +113,7 @@ const DataRenderer = <T,>({
         button={empty.button}
       />
     );
-  return <div className="mt-16">{render(data)}</div>;
+  return <div>{render(data)}</div>;
 };
 
 export default DataRenderer;
